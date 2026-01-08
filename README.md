@@ -2,8 +2,9 @@
 
 Revolux-Core is the reference implementation of the Revolux blockchain protocol.
 
-Revolux is a Monero-compatible Layer-1 cryptocurrency focused on fair launch,
-strong default privacy, and protocol-level auditability.
+Revolux-Core is an independent Layer-1 blockchain implementation focused on fair launch, strong default privacy, 
+and protocol-level auditability.
+
 
 This repository contains the node (daemon), wallet software, and supporting
 tooling used to operate the Revolux network.
