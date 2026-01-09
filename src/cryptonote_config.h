@@ -233,14 +233,14 @@ namespace config
   boost::uuids::uuid const NETWORK_ID = { {
       0x42 ,0x45, 0x56, 0x4F , 0x4C, 0x55 , 0x58, 0x2D, 0x43, 0x4F, 0x52, 0x45, 0x2D, 0x4D, 0x41, 0x49
     } }; // Revolux-Core Mainnet
-  std::string const GENESIS_TX = "013c01ff0001ffffffffffff03029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121017767aafcde9be00dcfd098715ebcf7f410daebc582fda69d24a28e9d0bc890d1";
+  std::string const GENESIS_TX = "013c01ff0001ffffffffffff00010000000000000000000000000000000000000000000000000000000000000000";
   uint32_t const GENESIS_NONCE = 10000;
 
   // Phase 3.1: Genesis block identity constants (mainnet)
   constexpr uint64_t GENESIS_BLOCK_TIMESTAMP = 0;
   constexpr uint32_t GENESIS_BLOCK_NONCE = 10000;
   constexpr char const* GENESIS_BLOCK_HASH =
-    "0000000000000000000000000000000000000000000000000000000000000000";
+    "24df5db85351f6ec613826082afcd07075ef0ffc1582bfdbf91d1e3274ecf9bb";
 
   // Hash domain separators
   const char HASH_KEY_BULLETPROOF_EXPONENT[] = "bulletproof";
@@ -282,14 +282,14 @@ namespace config
     boost::uuids::uuid const NETWORK_ID = { {
         0x52 ,0x45, 0x56, 0x4F , 0x4C, 0x55 , 0x58, 0x2D, 0x54, 0x45, 0x53, 0x54, 0x4E, 0x45, 0x54, 0x21
       } }; // Revolux-Core Testnet
-    std::string const GENESIS_TX = "013c01ff0001ffffffffffff03029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121017767aafcde9be00dcfd098715ebcf7f410daebc582fda69d24a28e9d0bc890d1";
+    std::string const GENESIS_TX = "013c01ff0001ffffffffffff00010000000000000000000000000000000000000000000000000000000000000000";
     uint32_t const GENESIS_NONCE = 10001;
 
     // Phase 3.1: Genesis block identity constants (testnet)
     constexpr uint64_t TESTNET_GENESIS_BLOCK_TIMESTAMP = 0;
     constexpr uint32_t TESTNET_GENESIS_BLOCK_NONCE = 10001;
     constexpr char const* TESTNET_GENESIS_BLOCK_HASH =
-      "0000000000000000000000000000000000000000000000000000000000000000";
+      "5f854609368bcf7307c7f52d6b58ae181c12066e9a715f08b5a9017f2d7f3527";
   }
 
   namespace stagenet
