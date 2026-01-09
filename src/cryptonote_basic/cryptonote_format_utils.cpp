@@ -1639,4 +1639,75 @@ namespace cryptonote
     sc_sub((unsigned char*)key.data, (const unsigned char*)key.data, (const unsigned char*)hash.data);
     return key;
   }
+
+  // Phase 3.1: Genesis construction and validation
+  block get_genesis_block(network_type nettype)
+  {
+    block b{};
+
+    b.major_version = CURRENT_BLOCK_MAJOR_VERSION;
+    b.minor_version = CURRENT_BLOCK_MINOR_VERSION;
+
+    uint64_t timestamp = 0;
+    const std::string* genesis_tx_hex = nullptr;
+    uint32_t nonce = 0;
+
+    switch (nettype)
+    {
+      case MAINNET:
+        timestamp = ::config::GENESIS_BLOCK_TIMESTAMP;
+        genesis_tx_hex = &::config::GENESIS_TX;
+        nonce = ::config::GENESIS_NONCE;
+        break;
+      case TESTNET:
+        timestamp = ::config::testnet::TESTNET_GENESIS_BLOCK_TIMESTAMP;
+        genesis_tx_hex = &::config::testnet::GENESIS_TX;
+        nonce = ::config::testnet::GENESIS_NONCE;
+        break;
+      case STAGENET:
+        timestamp = 0;
+        genesis_tx_hex = &::config::stagenet::GENESIS_TX;
+        nonce = ::config::stagenet::GENESIS_NONCE;
+        break;
+      case FAKECHAIN:
+      case UNDEFINED:
+      default:
+        throw std::runtime_error("Unsupported network type for genesis construction");
+    }
+
+    b.timestamp = timestamp;
+    b.prev_id = null_hash;
+    b.nonce = nonce;
+
+    if (genesis_tx_hex)
+    {
+      blobdata tx_bl;
+      const bool parsed = epee::string_tools::parse_hexstr_to_binbuff(*genesis_tx_hex, tx_bl);
+      CHECK_AND_ASSERT_THROW_MES_L1(parsed, "Failed to parse genesis coinbase transaction hex string");
+
+      const bool deserialized = t_serializable_object_from_blob(b.miner_tx, tx_bl);
+      CHECK_AND_ASSERT_THROW_MES_L1(deserialized, "Failed to deserialize genesis coinbase transaction");
+
+      b.miner_tx.invalidate_hashes();
+      b.miner_tx.set_blob_size(tx_bl.size());
+    }
+
+    b.invalidate_hashes();
+    return b;
+  }
+
+  bool is_genesis_block(const block& b)
+  {
+    if (b.prev_id != null_hash)
+      return false;
+
+    if (b.miner_tx.vin.size() != 1)
+      return false;
+
+    if (b.miner_tx.vin[0].type() != typeid(txin_gen))
+      return false;
+
+    const txin_gen &coinbase_in = boost::get<txin_gen>(b.miner_tx.vin[0]);
+    return coinbase_in.height == 0;
+  }
 }

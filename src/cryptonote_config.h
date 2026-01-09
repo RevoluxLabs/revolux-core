@@ -236,6 +236,12 @@ namespace config
   std::string const GENESIS_TX = "013c01ff0001ffffffffffff03029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121017767aafcde9be00dcfd098715ebcf7f410daebc582fda69d24a28e9d0bc890d1";
   uint32_t const GENESIS_NONCE = 10000;
 
+  // Phase 3.1: Genesis block identity constants (mainnet)
+  constexpr uint64_t GENESIS_BLOCK_TIMESTAMP = 0;
+  constexpr uint32_t GENESIS_BLOCK_NONCE = 10000;
+  constexpr char const* GENESIS_BLOCK_HASH =
+    "0000000000000000000000000000000000000000000000000000000000000000";
+
   // Hash domain separators
   const char HASH_KEY_BULLETPROOF_EXPONENT[] = "bulletproof";
   const char HASH_KEY_BULLETPROOF_PLUS_EXPONENT[] = "bulletproof_plus";
@@ -278,6 +284,12 @@ namespace config
       } }; // Revolux-Core Testnet
     std::string const GENESIS_TX = "013c01ff0001ffffffffffff03029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121017767aafcde9be00dcfd098715ebcf7f410daebc582fda69d24a28e9d0bc890d1";
     uint32_t const GENESIS_NONCE = 10001;
+
+    // Phase 3.1: Genesis block identity constants (testnet)
+    constexpr uint64_t TESTNET_GENESIS_BLOCK_TIMESTAMP = 0;
+    constexpr uint32_t TESTNET_GENESIS_BLOCK_NONCE = 10001;
+    constexpr char const* TESTNET_GENESIS_BLOCK_HASH =
+      "0000000000000000000000000000000000000000000000000000000000000000";
   }
 
   namespace stagenet

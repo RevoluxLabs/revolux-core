@@ -343,9 +343,35 @@ bool Blockchain::init(BlockchainDB* db, const network_type nettype, bool offline
   if(!m_db->height())
   {
     MINFO("Blockchain not loaded, generating genesis block.");
-    block bl;
+
+    // Construct the genesis block deterministically from configuration
+    block bl = get_genesis_block(m_nettype);
+
+    // Enforce that the constructed genesis block matches the configured hash
+    if (m_nettype == MAINNET || m_nettype == TESTNET)
+    {
+      const char *hash_str = nullptr;
+      if (m_nettype == MAINNET)
+        hash_str = ::config::GENESIS_BLOCK_HASH;
+      else if (m_nettype == TESTNET)
+        hash_str = ::config::testnet::TESTNET_GENESIS_BLOCK_HASH;
+
+      if (hash_str != nullptr)
+      {
+        crypto::hash expected_hash = crypto::null_hash;
+        const bool parsed = epee::string_tools::hex_to_pod(hash_str, expected_hash);
+        CHECK_AND_ASSERT_MES(parsed, false, "Configured genesis block hash is not valid hex");
+
+        const crypto::hash actual_hash = get_block_hash(bl);
+        if (actual_hash != expected_hash)
+        {
+          LOG_ERROR("Constructed genesis block hash does not match configured genesis block hash");
+          return false;
+        }
+      }
+    }
+
     block_verification_context bvc = {};
-    generate_genesis_block(bl, get_config(m_nettype).GENESIS_TX, get_config(m_nettype).GENESIS_NONCE);
     db_wtxn_guard wtxn_guard(m_db);
     add_new_block(bl, bvc);
     CHECK_AND_ASSERT_MES(!bvc.m_verifivation_failed, false, "Failed to add genesis block to blockchain");
@@ -3886,6 +3912,40 @@ bool Blockchain::handle_block_to_main_chain(const block& bl, const crypto::hash&
   uint64_t blockchain_height;
   const crypto::hash top_hash = get_tail_id(blockchain_height);
   ++blockchain_height; // block height to chain height
+
+  // Phase 3.1: Enforce genesis block identity strictly at height 0 (per-network)
+  if (m_nettype == MAINNET || m_nettype == TESTNET)
+  {
+    const uint64_t block_height = get_block_height(bl);
+    if (block_height == 0)
+    {
+      if (!is_genesis_block(bl))
+      {
+        MERROR_VER("Rejected block at height 0: not a valid genesis structure");
+        bvc.m_verifivation_failed = true;
+        goto leave;
+      }
+
+      const char *hash_str = (m_nettype == MAINNET)
+        ? ::config::GENESIS_BLOCK_HASH
+        : ::config::testnet::TESTNET_GENESIS_BLOCK_HASH;
+
+      if (hash_str != nullptr)
+      {
+        crypto::hash expected_hash = crypto::null_hash;
+        const bool parsed = epee::string_tools::hex_to_pod(hash_str, expected_hash);
+        CHECK_AND_ASSERT_MES(parsed, false, "Configured genesis block hash is not valid hex");
+
+        if (id != expected_hash)
+        {
+          MERROR_VER("Rejected block at height 0: genesis hash mismatch");
+          bvc.m_verifivation_failed = true;
+          goto leave;
+        }
+      }
+    }
+  }
+
   if(bl.prev_id != top_hash)
   {
     MERROR_VER("Block with id: " << id << std::endl << "has wrong prev_id: " << bl.prev_id << std::endl << "expected: " << top_hash);
