@@ -848,6 +848,18 @@ void BlockchainLMDB::add_block(const block& blk, size_t block_weight, uint64_t l
   // and often actually equal
   m_cum_size += block_weight;
   m_cum_count++;
+
+  // Phase 3.1 Step 4: Persist genesis hash on first DB initialization
+  if (m_height == 0)
+  {
+    MDB_val_str(k, "genesis_hash");
+    MDB_val v;
+    std::string hash_str = epee::string_tools::pod_to_hex(blk_hash);
+    v.mv_data = (void*)hash_str.c_str();
+    v.mv_size = hash_str.size();
+    if (auto result = mdb_put(m_write_txn, m_properties, &k, &v, 0))
+      throw0(DB_ERROR(lmdb_error("Failed to store genesis hash: ", result).c_str()));
+  }
 }
 
 void BlockchainLMDB::remove_block()
@@ -4607,6 +4619,122 @@ uint64_t BlockchainLMDB::get_database_size() const
 void BlockchainLMDB::fixup()
 {
   LOG_PRINT_L3("BlockchainLMDB::" << __func__);
+
+  // Phase 3.1 Step 4: Verify genesis hash binding
+  if (height() >= 0)
+  {
+    mdb_txn_safe txn(false);
+    if (auto result = mdb_txn_begin(m_env, NULL, MDB_RDONLY, txn))
+      throw0(DB_ERROR(lmdb_error("Failed to create a read transaction for the db: ", result).c_str()));
+
+    const crypto::hash stored_genesis_hash = get_block_hash_from_height(0);
+
+    // Determine expected genesis hash by comparing against configured values
+    const char *expected_hash_str = nullptr;
+
+    // Check if it matches mainnet genesis
+    crypto::hash mainnet_expected = crypto::null_hash;
+    if (epee::string_tools::hex_to_pod(::config::GENESIS_BLOCK_HASH, mainnet_expected))
+    {
+      if (stored_genesis_hash == mainnet_expected)
+      {
+        expected_hash_str = ::config::GENESIS_BLOCK_HASH;
+      }
+    }
+
+    // If not mainnet, check if it matches testnet genesis
+    if (expected_hash_str == nullptr)
+    {
+      crypto::hash testnet_expected = crypto::null_hash;
+      if (epee::string_tools::hex_to_pod(::config::testnet::TESTNET_GENESIS_BLOCK_HASH, testnet_expected))
+      {
+        if (stored_genesis_hash == testnet_expected)
+        {
+          expected_hash_str = ::config::testnet::TESTNET_GENESIS_BLOCK_HASH;
+        }
+      }
+    }
+
+    if (expected_hash_str != nullptr)
+    {
+      crypto::hash expected_hash = crypto::null_hash;
+      const bool parsed = epee::string_tools::hex_to_pod(expected_hash_str, expected_hash);
+      if (!parsed)
+      {
+        txn.abort();
+        LOG_ERROR("Configured genesis block hash is not valid hex: " << expected_hash_str);
+        throw std::runtime_error("Invalid genesis block hash configuration");
+      }
+
+      // Check if genesis hash is already persisted
+      MDB_val_str(k, "genesis_hash");
+      MDB_val v;
+      const int get_result = mdb_get(txn, m_properties, &k, &v);
+      bool has_persisted = false;
+      crypto::hash stored_persisted_hash = crypto::null_hash;
+
+      if (get_result == 0)
+      {
+        // Property exists, parse it
+        std::string hash_str((const char*)v.mv_data, v.mv_size);
+        has_persisted = epee::string_tools::hex_to_pod(hash_str, stored_persisted_hash);
+        if (!has_persisted)
+        {
+          txn.abort();
+          LOG_ERROR("Stored genesis hash property is not valid hex");
+          throw std::runtime_error("Corrupted genesis hash in database");
+        }
+      }
+
+      // If we have a persisted hash, verify it matches
+      if (has_persisted)
+      {
+        if (stored_persisted_hash != expected_hash)
+        {
+          txn.abort();
+          LOG_ERROR("FATAL: Stored genesis hash does not match configured genesis hash");
+          LOG_ERROR("Stored: " << pod_to_hex(stored_persisted_hash));
+          LOG_ERROR("Expected: " << pod_to_hex(expected_hash));
+          throw std::runtime_error("Genesis hash mismatch: database is bound to a different network");
+        }
+      }
+
+      // Verify current genesis block hash matches expected
+      if (stored_genesis_hash != expected_hash)
+      {
+        txn.abort();
+        LOG_ERROR("FATAL: Genesis block hash at height 0 does not match configured genesis hash");
+        LOG_ERROR("Stored at height 0: " << pod_to_hex(stored_genesis_hash));
+        LOG_ERROR("Expected: " << pod_to_hex(expected_hash));
+        throw std::runtime_error("Genesis hash mismatch: database contains blocks from a different network");
+      }
+
+      // If no persisted hash exists yet, store it now
+      if (!has_persisted)
+      {
+        // Need write transaction to store
+        txn.abort();
+        mdb_txn_safe write_txn(false);
+        if (auto result = mdb_txn_begin(m_env, NULL, 0, write_txn))
+          throw0(DB_ERROR(lmdb_error("Failed to create a write transaction for the db: ", result).c_str()));
+
+        std::string hash_str = epee::string_tools::pod_to_hex(stored_genesis_hash);
+        v.mv_data = (void*)hash_str.c_str();
+        v.mv_size = hash_str.size();
+        if (auto result = mdb_put(write_txn, m_properties, &k, &v, 0))
+        {
+          write_txn.abort();
+          throw0(DB_ERROR(lmdb_error("Failed to store genesis hash: ", result).c_str()));
+        }
+        write_txn.commit();
+      }
+      else
+      {
+        txn.abort();
+      }
+    }
+  }
+
   // Always call parent as well
   BlockchainDB::fixup();
 }
