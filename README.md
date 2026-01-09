@@ -1,52 +1,105 @@
-# Revolux-Core (RVLX)
+# Revolux (RVLX)
 
-Revolux-Core is the reference implementation of the Revolux blockchain protocol.
+Revolux is an independent Layer-1 cryptocurrency implementing the CryptoNote protocol with enhanced privacy and a zero-premine fair launch.
 
-Revolux-Core is an independent Layer-1 blockchain implementation focused on fair launch, strong default privacy, 
-and protocol-level auditability.
+## Overview
 
+Revolux is a new cryptocurrency protocol with the following key characteristics:
 
-This repository contains the node (daemon), wallet software, and supporting
-tooling used to operate the Revolux network.
+- **Fair Launch:** Zero-premine genesis block - all coins must be earned through mining
+- **Privacy by Default:** Ring signatures, stealth addresses, and unlinkable transactions
+- **Immutable Genesis:** Cryptographically locked genesis block prevents chain splits
+- **Network Separation:** Distinct mainnet and testnet with enforced isolation
 
----
+This repository contains the reference implementation: node (revoluxd), wallet software, and development tools.
 
 ## Project Status
 
-**Current Phase:** Phase 2 — Protocol Definition (Complete)  
-**Consensus Engine:** Monero v0.18.4.1 (inherited, unchanged)  
-**Network Status:** Testnet operational  
-**Mainnet:** Not launched  
+**Phase:** 3.1 (Genesis Finalization) - Complete ✅
+**Genesis:** Finalized and cryptographically locked
+**Mainnet:** Ready for launch
+**Testnet:** Operational
 
-Phase 2 finalized:
-- Independent network identity (UUIDs, ports, address prefixes)
-- Revolux branding across binaries and user-facing output
-- Complete protocol documentation
-- Clear separation between implemented code and future design
+### Completed Phases
+- **Phase 1:** Core implementation and testing
+- **Phase 2:** Network identity and protocol hardening
+- **Phase 3.1:** Genesis block finalization and network enforcement
 
-No genesis, emission, or proof-of-work changes have been implemented yet.
+### Upcoming Phases
+- **Phase 3.2:** Mainnet launch preparation
+- **Phase 4:** Ecosystem development
 
----
+## Fair Launch Guarantee
 
-## Development Phases
+Revolux implements a true fair launch with no premine or pre-allocations:
 
-- **Phase 1:** Build & test Monero-derived codebase ✅
-- **Phase 2:** Protocol definition & identity hardening ✅
-- **Phase 3:** Genesis, network finalization, and protocol changes (upcoming)
-- **Phase 4:** Ecosystem tooling and public release
+- **Zero Genesis Outputs:** The genesis block coinbase transaction has zero outputs
+- **No Developer Allocation:** No coins are pre-assigned to founders or developers
+- **Mining-Only Distribution:** All RVLX coins must be earned through proof-of-work mining
+- **Immutable Genesis:** The genesis block identity is cryptographically enforced and cannot be changed
 
----
+## Network Configuration
 
-## Important Notes
+### Mainnet
+- **Ports:** P2P 18880, RPC 18881, ZMQ 18882
+- **Data Directory:** `~/.revolux/`
+- **Address Prefix:** 42 (public), 43 (integrated), 44 (subaddress)
+- **Genesis Hash:** 24df5db85351f6ec613826082afcd07075ef0ffc1582bfdbf91d1e3274ecf9bb
 
-- This project is under active development.
-- Design documents are considered authoritative.
-- No premine exists.
-- All future coins must be earned through mining after genesis.
+### Testnet
+- **Ports:** P2P 28080, RPC 28081, ZMQ 28082
+- **Data Directory:** `~/.revolux/testnet/`
+- **Address Prefix:** 63 (public), 64 (integrated), 65 (subaddress)
+- **Genesis Hash:** 5f854609368bcf7307c7f52d6b58ae181c12066e9a715f08b5a9017f2d7f3527
 
----
+## Building
+
+### Prerequisites
+```bash
+# Ubuntu/Debian
+sudo apt update && sudo apt install build-essential cmake pkg-config libssl-dev libzmq3-dev libsodium-dev libunbound-dev libminiupnpc-dev libunwind8-dev liblzma-dev libreadline6-dev libexpat1-dev libgtest-dev libboost-all-dev libhidapi-dev libusb-1.0-0-dev libprotobuf-dev protobuf-compiler libudev-dev
+```
+
+### Build Commands
+```bash
+git clone <repository-url>
+cd revolux-core
+make -j$(nproc)
+```
+
+### Binaries Produced
+- `revoluxd` - Main daemon/node
+- `revolux-wallet` - CLI wallet
+- `revolux-wallet-rpc` - RPC wallet interface
+- `revolux-genesis-hash` - Genesis hash computation tool
+
+## Usage
+
+### Start Testnet Node
+```bash
+./build/Linux/master/release/bin/revoluxd --testnet --detach
+```
+
+### Create Wallet
+```bash
+./build/Linux/master/release/bin/revolux-wallet --testnet --generate-new-wallet wallet.bin
+```
+
+### Check Balance
+```bash
+./build/Linux/master/release/bin/revolux-wallet --testnet --wallet-file wallet.bin --balance
+```
+
+## Documentation
+
+- [Build Guide](BUILD.md) - Detailed build instructions
+- [Contributing Guide](docs/CONTRIBUTING.md) - Development guidelines
+- Whitepaper v2.0 - Released soon
+
+## Attribution
+
+Revolux is derived from the CryptoNote protocol and inherits its cryptographic foundations. Revolux is an independent project and is not affiliated with, endorsed by, or connected to the Monero Project or any other cryptocurrency project.
 
 ## License
 
-This project is based on Monero and follows the same open-source licensing terms.
-See the LICENSE file for details.
+See [LICENSE](LICENSE) file for details. This project inherits the BSD 3-Clause license from its CryptoNote heritage.
