@@ -15,18 +15,22 @@ This repository contains the reference implementation: node (revoluxd), wallet s
 
 ## Project Status
 
-**Phase:** 3.1 (Genesis Finalization) - Complete ✅
+**Phase:** 3.3 (Proof-of-Work Implementation) - Complete ✅
 **Genesis:** Finalized and cryptographically locked
-**Mainnet:** Genesis finalized, launch preparation ongoing
 **Testnet:** Operational
+**Mainnet:** Ready for launch
+
+RevoluxHash is implemented but not active. Network activation will occur in Phase 3.4 via an explicit consensus upgrade.
 
 ### Completed Phases
 - **Phase 1:** Core implementation and testing
 - **Phase 2:** Network identity and protocol hardening
 - **Phase 3.1:** Genesis block finalization and network enforcement
+- **Phase 3.2:** RevoluxHash proof-of-work specification (design-frozen)
+- **Phase 3.3:** RevoluxHash implementation (no activation)
 
 ### Upcoming Phases
-- **Phase 3.2:** Mainnet launch preparation
+- **Phase 3.4:** RevoluxHash consensus activation
 - **Phase 4:** Ecosystem development
 
 ## Fair Launch Guarantee
