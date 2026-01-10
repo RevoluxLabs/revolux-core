@@ -46,6 +46,8 @@ set(crypto_sources
   keccak.c
   oaes_lib.c
   random.c
+  revolux-hash.c
+  revolux-hash-test.c
   skein.c
   slow-hash.c
   rx-slow-hash.c
