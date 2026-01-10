@@ -47,7 +47,6 @@ set(crypto_sources
   oaes_lib.c
   random.c
   revolux-hash.c
-  revolux-hash-test.c
   skein.c
   slow-hash.c
   rx-slow-hash.c
@@ -78,6 +77,12 @@ target_link_libraries(cncrypto
     ${sodium_LIBRARIES}
   PRIVATE
     ${EXTRA_LIBRARIES})
+
+# Build RevoluxHash test executable when BUILD_TESTS is enabled
+if(BUILD_TESTS)
+  add_executable(revolux-hash-test revolux-hash-test.c)
+  target_link_libraries(revolux-hash-test cncrypto)
+endif()
 
 if (ARM)
   option(NO_OPTIMIZED_MULTIPLY_ON_ARM
