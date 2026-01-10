@@ -140,9 +140,10 @@ function (add_cxx_flag_if_supported flag var)
 endfunction()
 
 function (add_linker_flag_if_supported flag var)
+  include(CheckLinkerFlag)
   string(REPLACE "-" "_" supported ${flag}_ld)
   string(REPLACE "," "_" supported ${flag}_ld)
-  check_linker_flag(${flag} ${supported})
+  check_linker_flag(C ${flag} ${supported})
   if(${${supported}})
     set(${var} "${${var}} ${flag}" PARENT_SCOPE)
   endif()
@@ -210,21 +211,31 @@ endmacro()
 # 1) Test project with all types of libraries and without undefined symbols can compile successfully
 # 2) Test project with all types of libraries and undefined symbols can not compile successfully
 function(forbid_undefined_symbols)
+  include(CheckLinkerFlag)
+  check_linker_flag(C "-Wl,--no-undefined" HAS_NO_UNDEFINED)
+  check_linker_flag(C "-Wl,-undefined,error" HAS_UNDEFINED_ERROR)
+
   unset(TMP)
-  # https://www.unix.com/man-page/linux/1/ld, --no-undefined, Report unresolved symbol references from regular object files.
-  add_linker_flag_if_supported(-Wl,--no-undefined TMP)
-  # https://www.unix.com/man-page/osx/1/ld/, -undefined, Specifies how undefined symbols are to be treated.
-  add_linker_flag_if_supported(-Wl,-undefined,error TMP)
-  string(APPEND CMAKE_SHARED_LINKER_FLAGS ${TMP})
-  string(APPEND CMAKE_MODULE_LINKER_FLAGS ${TMP})
-  set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} PARENT_SCOPE)
-  set(CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS} PARENT_SCOPE)
-  set(TEST_PROJECT "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/CMakeTmp/test_project")
-  foreach(EXPECT IN ITEMS TRUE FALSE)
-    file(REMOVE_RECURSE "${TEST_PROJECT}")
-    file(MAKE_DIRECTORY "${TEST_PROJECT}")
-    file(WRITE "${TEST_PROJECT}/CMakeLists.txt"
-      [=[
+  if(HAS_NO_UNDEFINED)
+    string(APPEND TMP " -Wl,--no-undefined")
+  endif()
+  if(HAS_UNDEFINED_ERROR)
+    string(APPEND TMP " -Wl,-undefined,error")
+  endif()
+
+  if(TMP)
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS ${TMP})
+    string(APPEND CMAKE_MODULE_LINKER_FLAGS ${TMP})
+    set(CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} PARENT_SCOPE)
+    set(CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS} PARENT_SCOPE)
+
+    # Only run the test project if undefined symbol detection is actually enabled
+    set(TEST_PROJECT "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/CMakeTmp/test_project")
+    foreach(EXPECT IN ITEMS TRUE FALSE)
+      file(REMOVE_RECURSE "${TEST_PROJECT}")
+      file(MAKE_DIRECTORY "${TEST_PROJECT}")
+      file(WRITE "${TEST_PROJECT}/CMakeLists.txt"
+        [=[
 cmake_minimum_required(VERSION 3.10)
 project(test)
 option(EXPECT_SUCCESS "" ON)
@@ -237,18 +248,19 @@ add_library(l1 MODULE incorrect_source.cpp)
 add_library(l2 STATIC incorrect_source.cpp)
 add_library(l3 OBJECT incorrect_source.cpp)
 ]=]
-    )
-    try_compile(SUCCESS "${TEST_PROJECT}/build" "${TEST_PROJECT}" test
-      CMAKE_FLAGS
-      "-DCMAKE_SHARED_LINKER_FLAGS=${CMAKE_SHARED_LINKER_FLAGS}"
-      "-DCMAKE_MODULE_LINKER_FLAGS=${CMAKE_MODULE_LINKER_FLAGS}"
-      "-DEXPECT_SUCCESS=${EXPECT}"
-    )
-    if (NOT ${SUCCESS} STREQUAL ${EXPECT})
-      message(FATAL_ERROR "Undefined symbols test failure: expect(${EXPECT}), success(${SUCCESS})")
-    endif()
-    file(REMOVE_RECURSE "${TEST_PROJECT}")
-  endforeach()
+      )
+      try_compile(SUCCESS "${TEST_PROJECT}/build" "${TEST_PROJECT}" test
+        CMAKE_FLAGS
+        "-DCMAKE_SHARED_LINKER_FLAGS=${CMAKE_SHARED_LINKER_FLAGS}"
+        "-DCMAKE_MODULE_LINKER_FLAGS=${CMAKE_MODULE_LINKER_FLAGS}"
+        "-DEXPECT_SUCCESS=${EXPECT}"
+      )
+      if (NOT ${SUCCESS} STREQUAL ${EXPECT})
+        message(FATAL_ERROR "Undefined symbols test failure: expect(${EXPECT}), success(${SUCCESS})")
+      endif()
+      file(REMOVE_RECURSE "${TEST_PROJECT}")
+    endforeach()
+  endif()
 endfunction()
 if (NOT (CMAKE_SYSTEM_NAME MATCHES "kOpenBSD.*|OpenBSD.*") AND NOT OSSFUZZ)
   forbid_undefined_symbols()
