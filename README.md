@@ -17,7 +17,7 @@ This repository contains the reference implementation: node (revoluxd), wallet s
 
 **Phase:** 3.1 (Genesis Finalization) - Complete ✅
 **Genesis:** Finalized and cryptographically locked
-**Mainnet:** Ready for launch
+**Mainnet:** Genesis finalized, launch preparation ongoing
 **Testnet:** Operational
 
 ### Completed Phases
