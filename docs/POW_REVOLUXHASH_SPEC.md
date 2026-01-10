@@ -1,10 +1,11 @@
-# Revolux Phase 3.2 — Proof-of-Work Specification
-# RevoluxHash (Design-Freeze Document)
+# Revolux Phase 3.4 — Proof-of-Work Specification
+# RevoluxHash (Consensus Activated)
 
-**Status:** DESIGN FROZEN  
+**Status:** CONSENSUS ACTIVE  
 **Consensus Impact:** YES  
-**Code Impact:** NO  
-**Phase:** 3.2 Complete  
+**Code Impact:** YES  
+**Phase:** 3.4 Complete  
+**Activation:** Hardfork v17 (Height ≥ 1)  
 
 ---
 
@@ -210,19 +211,25 @@ The following MUST NEVER change and require hard forks if modification is necess
 
 ---
 
-## Phase 3.2 Design Freeze Declaration
+## Phase 3.4 Consensus Activation Declaration
 
-**RevoluxHash is now protocol law.**
+**RevoluxHash is now active consensus law.**
 
-The RevoluxHash proof-of-work specification is hereby frozen and constitutes binding consensus rules for the Revolux network. No further modifications to the proof-of-work algorithm, memory model, input structure, or execution requirements are permitted.
+The RevoluxHash proof-of-work specification is frozen and constitutes binding consensus rules for the Revolux network. RevoluxHash activates at hardfork version 17 (height ≥ 1), replacing all previous proof-of-work algorithms.
 
-**Implementation may begin only in Phase 4 or later phases explicitly designated for implementation work.**
+**Activation Details:**
+- **Hardfork Version:** 17
+- **Activation Height:** ≥ 1 (genesis block uses legacy PoW)
+- **Pre-activation:** Legacy CryptoNight/RandomX remains valid
+- **Post-activation:** Only RevoluxHash accepted
+- **Miner Selection:** Automatic based on block height
 
-This document serves as the authoritative reference for all future Revolux protocol implementations, audits, and consensus enforcement.
+This document serves as the authoritative reference for all Revolux protocol implementations, audits, and consensus enforcement.
 
-**Design Freeze Date:** [Current Date]  
-**Phase 3.2 Status:** COMPLETE  
-**Next Phase:** Implementation preparation (Phase 4)
+**Design Freeze Date:** [Phase 3.2]  
+**Implementation Date:** [Phase 3.4]  
+**Consensus Activation:** COMPLETE  
+**Network Status:** RevoluxHash Active
 
 ---
 
