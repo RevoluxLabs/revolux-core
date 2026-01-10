@@ -857,7 +857,7 @@ void BlockchainLMDB::add_block(const block& blk, size_t block_weight, uint64_t l
     std::string hash_str = epee::string_tools::pod_to_hex(blk_hash);
     v.mv_data = (void*)hash_str.c_str();
     v.mv_size = hash_str.size();
-    if (auto result = mdb_put(m_write_txn, m_properties, &k, &v, 0))
+    if (auto result = mdb_put(m_write_txn->m_txn, m_properties, &k, &v, 0))
       throw0(DB_ERROR(lmdb_error("Failed to store genesis hash: ", result).c_str()));
   }
 }
