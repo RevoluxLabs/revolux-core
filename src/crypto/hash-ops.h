@@ -98,6 +98,7 @@ bool tree_branch_hash(const char hash[HASH_SIZE], const char (*branch)[HASH_SIZE
 bool is_branch_in_tree(const char hash[HASH_SIZE], const char root[HASH_SIZE], const char (*branch)[HASH_SIZE], size_t depth, uint32_t path);
 
 #define RX_BLOCK_VERSION	12
+#define REVOLUX_BLOCK_VERSION	17
 void rx_slow_hash_allocate_state(void);
 void rx_slow_hash_free_state(void);
 uint64_t rx_seedheight(const uint64_t height);
@@ -108,3 +109,5 @@ void rx_slow_hash(const char *seedhash, const void *data, size_t length, char *r
 
 void rx_set_miner_thread(uint32_t value, size_t max_dataset_init_threads);
 uint32_t rx_get_miner_thread(void);
+
+void revolux_hash(const uint8_t* input, uint8_t* output);

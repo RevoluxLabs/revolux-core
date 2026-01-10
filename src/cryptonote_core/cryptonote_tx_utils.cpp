@@ -685,7 +685,11 @@ namespace cryptonote
       epee::string_tools::hex_to_pod(longhash_202612, res);
       return true;
     }
-    if (major_version >= RX_BLOCK_VERSION)
+    if (major_version >= REVOLUX_BLOCK_VERSION)
+    {
+      crypto::revolux_slow_hash(bd.data(), bd.size(), res);
+    }
+    else if (major_version >= RX_BLOCK_VERSION)
     {
       crypto::hash hash;
       if (pbc != NULL)

@@ -88,6 +88,10 @@ namespace crypto {
     cn_slow_hash(data, length, reinterpret_cast<char *>(&hash), variant, 1/*prehashed*/, height);
   }
 
+  inline void revolux_slow_hash(const void *data, std::size_t length, hash &hash) {
+    revolux_hash(reinterpret_cast<const uint8_t*>(data), reinterpret_cast<uint8_t*>(&hash));
+  }
+
   inline void tree_hash(const hash *hashes, std::size_t count, hash &root_hash) {
     tree_hash(reinterpret_cast<const char (*)[HASH_SIZE]>(hashes), count, reinterpret_cast<char *>(&root_hash));
   }

@@ -30,6 +30,8 @@
 #warning "RevoluxHash compiled but NOT activated in consensus"
 #endif
 
+#define REVOLUX_POW_ACTIVATION 1
+
 #include "revolux-hash.h"
 #include <string.h>
 #include <stdlib.h>
