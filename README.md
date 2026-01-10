@@ -54,20 +54,32 @@ Revolux implements a true fair launch with no premine or pre-allocations:
 
 ## Building
 
+The Revolux daemon must be built before it can be run. After building, binaries will be located in `build/bin/`.
+
 ### Prerequisites
 ```bash
 # Ubuntu/Debian
 sudo apt update && sudo apt install build-essential cmake pkg-config libssl-dev libzmq3-dev libsodium-dev libunbound-dev libminiupnpc-dev libunwind8-dev liblzma-dev libreadline6-dev libexpat1-dev libgtest-dev libboost-all-dev libhidapi-dev libusb-1.0-0-dev libprotobuf-dev protobuf-compiler libudev-dev
 ```
 
-### Build Commands
+### Build Steps
 ```bash
+# Clone the repository
 git clone <repository-url>
 cd revolux-core
+
+# Create build directory
+mkdir build && cd build
+
+# Configure with CMake
+cmake ../monero -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF
+
+# Build
 make -j$(nproc)
 ```
 
 ### Binaries Produced
+After building, the following binaries will be available in `build/bin/`:
 - `revoluxd` - Main daemon/node
 - `revolux-wallet` - CLI wallet
 - `revolux-wallet-rpc` - RPC wallet interface
@@ -77,17 +89,17 @@ make -j$(nproc)
 
 ### Start Testnet Node
 ```bash
-./build/Linux/master/release/bin/revoluxd --testnet --detach
+./build/bin/revoluxd --testnet --detach
 ```
 
 ### Create Wallet
 ```bash
-./build/Linux/master/release/bin/revolux-wallet --testnet --generate-new-wallet wallet.bin
+./build/bin/revolux-wallet --testnet --generate-new-wallet wallet.bin
 ```
 
 ### Check Balance
 ```bash
-./build/Linux/master/release/bin/revolux-wallet --testnet --wallet-file wallet.bin --balance
+./build/bin/revolux-wallet --testnet --wallet-file wallet.bin --balance
 ```
 
 ## Documentation
