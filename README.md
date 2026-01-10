@@ -69,7 +69,7 @@ sudo apt update && sudo apt install build-essential cmake pkg-config libssl-dev 
 ### Build Steps
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/RevoluxLabs/revolux-core.git
 cd revolux-core
 
 # Create build directory
