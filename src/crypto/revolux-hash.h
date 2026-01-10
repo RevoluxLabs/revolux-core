@@ -44,8 +44,8 @@
 
 #pragma once
 
-#include <cstdint>
-#include <cstddef>
+#include <stdint.h>
+#include <stddef.h>
 
 #define REVOLUX_HASH_MEMORY_SIZE 2097152  // 2 MiB exactly as per spec
 #define REVOLUX_HASH_INPUT_SIZE 106       // 106 bytes input as per spec
