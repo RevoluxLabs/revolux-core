@@ -6,20 +6,13 @@ macro(CHECK_LINKER_FLAG flag VARIABLE)
       message(STATUS "Looking for ${flag} linker flag")
     endif()
 
-    set(_cle_source ${monero_SOURCE_DIR}/cmake/CheckLinkerFlag.c)
-
-    set(saved_CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-    set(CMAKE_C_FLAGS "${flag}")
-    try_compile(${VARIABLE}
+    try_compile(
+      ${VARIABLE}
       ${CMAKE_BINARY_DIR}
-      ${_cle_source}
-      COMPILE_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS} ${flag}
-      CMAKE_FLAGS
-      "-DCMAKE_EXE_LINKER_FLAGS=${flag}"
-      OUTPUT_VARIABLE OUTPUT)
-    unset(_cle_source)
-    set(CMAKE_C_FLAGS ${saved_CMAKE_C_FLAGS})
-    unset(saved_CMAKE_C_FLAGS)
+      SOURCES "int main(void) { return 0; }"
+      LINK_OPTIONS ${_flag}
+      OUTPUT_VARIABLE OUTPUT
+    )
 
     if ("${OUTPUT}" MATCHES "warning.*ignored")
       set(${VARIABLE} 0)
